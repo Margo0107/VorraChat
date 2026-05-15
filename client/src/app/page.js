@@ -1,26 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  const [count, setCount] = useState(0);
-
-  const handleClick = () => {
-    setCount(count + 1);
-    
-  };
-  // const handleClick = () => {
-  //   setCount((prev) => prev + 1);
-  //   setCount((prev) => prev + 1);
-  // };
-
-  useEffect(() => {
-    console.log("count: ", count);
-  }, [count]);
-
-  return (
-    <>
-      <h1 onClick={handleClick}>{count}</h1>
-    </>
-  );
+  redirect("/chat");
 }

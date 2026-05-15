@@ -9,7 +9,7 @@ export const useFormValidation = () => {
 
   const [errors, setErrors] = useState({});
 
-  const nameRegex = /^[A-Za-z0-9_]{7,12}$/;
+  const nameRegex = /^(?=.{3,12}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d@$!%*?&._-]+$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._-])[A-Za-z\d@$!%*?&._-]{6,}$/;
@@ -19,7 +19,7 @@ export const useFormValidation = () => {
 
     if (!nameRegex.test(name)) {
       errorMessages.nameError =
-        "Name must be 7-12 characters long and can only contain letters, numbers, and underscores.";
+        "Name must be 3-12 characters long, contain upper and lower letters, a number, and a symbol.";
     }
     if (!emailRegex.test(email)) {
       errorMessages.emailError = "Please enter a valid email address.";

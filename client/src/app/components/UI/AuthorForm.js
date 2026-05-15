@@ -36,6 +36,7 @@ export default function AuthorForm(props) {
       >
         {children}
         <h1 className="text-2xl font-bold">{titleH1}</h1>
+        
         <input
           type="text"
           value={nameValue}

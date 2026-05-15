@@ -3,8 +3,13 @@
 import { useFormValidation } from "../components/hooks/useFormValidation";
 import AuthorForm from "../components/UI/AuthorForm";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import useAuthApi from "../components/hooks/useAuthApi";
 
 export default function Register() {
+  const router = useRouter();
+
   const {
     email,
     setEmail,
@@ -13,13 +18,26 @@ export default function Register() {
     name,
     setName,
     errors,
-    setErrors,
     validateForm,
   } = useFormValidation();
 
-  const handleSubmit = (e) => {
+  const { register } = useAuthApi();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    try {
+      const result = await register({
+        userName: name,
+        userEmail: email,
+        userPassword: password,
+      });
+      if (result) {
+        router.push("/chat");
+      }
+    } catch (err) {
+      console.error(err.message);
+    }
   };
   return (
     <>
@@ -28,7 +46,7 @@ export default function Register() {
         onSubmit={handleSubmit}
         emailValue={email}
         onEmailChange={(e) => setEmail(e.target.value)}
-        passwordValue={password}
+        passValue={password}
         onPassChange={(e) => setPassword(e.target.value)}
         nameValue={name}
         onNameChange={(e) => setName(e.target.value)}
