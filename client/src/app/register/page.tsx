@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import useAuthApi from "../components/hooks/useAuthApi";
+import React from "react";
 
 export default function Register() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function Register() {
 
   const { register } = useAuthApi();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
@@ -36,7 +37,9 @@ export default function Register() {
         router.push("/chat");
       }
     } catch (err) {
-      console.error(err.message);
+      if (err instanceof Error) {
+        console.error(err.message);
+      }
     }
   };
   return (

@@ -1,6 +1,11 @@
-const User = require("../models/User");
+import { Request, Response } from "express";
+import User from "../models/User.js";
 
-exports.getUser = async (req, res) => {
+interface AuthorResponce extends Request {
+  userId?: string;
+}
+
+export const getUser = async (req: Request, res: Response) => {
   try {
     const users = await User.find().select("userName userEmail");
     res.status(200).json(users);
@@ -8,7 +13,8 @@ exports.getUser = async (req, res) => {
     res.status(500).json({ message: "server error" });
   }
 };
-exports.getMe = async (req, res) => {
+
+export const getMe = async (req: AuthorResponce, res: Response) => {
   try {
     const user = await User.findById(req.userId).select("userName userEmail");
 
@@ -21,7 +27,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-exports.getSearchUser = async (req, res) => {
+export const getSearchUser = async (req: AuthorResponce, res: Response) => {
   try {
     const query = req.query.q;
     if (!query || typeof query !== "string") {

@@ -1,11 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { AiOutlineEye } from "react-icons/ai";
 import { AiOutlineEyeInvisible } from "react-icons/ai";
+type ErrorsType = {
+  passError?: string;
+  emailError?: string;
+  nameError?: string;
+};
 
-export default function AuthorForm(props) {
-  const [pass, setPass] = useState("password");
+type AuthorFormProps = {
+  titleH1: string;
+  titleSubmit: string;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
+  onEmailChange: React.ChangeEventHandler<HTMLInputElement>;
+  onPassChange: React.ChangeEventHandler<HTMLInputElement>;
+  onNameChange: React.ChangeEventHandler<HTMLInputElement>;
+  passValue: string;
+  emailValue: string;
+  nameValue: string;
+  errors: ErrorsType;
+  children: React.ReactNode;
+};
+
+export default function AuthorForm(props: AuthorFormProps) {
+  const [pass, setPass] = useState<"password" | "text">("password");
   const {
     titleH1,
     titleSubmit,
@@ -36,7 +55,7 @@ export default function AuthorForm(props) {
       >
         {children}
         <h1 className="text-2xl font-bold">{titleH1}</h1>
-        
+
         <input
           type="text"
           value={nameValue}

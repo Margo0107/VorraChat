@@ -2,20 +2,27 @@
 
 import { useState } from "react";
 
+type FormError = {
+  emailError?: string;
+  nameError?: string;
+  passError?: string;
+};
+
 export const useFormValidation = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<FormError>({});
 
-  const nameRegex = /^(?=.{3,12}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d@$!%*?&._-]+$/;
+  const nameRegex =
+    /^(?=.{3,12}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d@$!%*?&._-]+$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._-])[A-Za-z\d@$!%*?&._-]{6,}$/;
 
-  const validateForm = () => {
-    const errorMessages = {};
+  const validateForm = (): boolean => {
+    const errorMessages: FormError = {};
 
     if (!nameRegex.test(name)) {
       errorMessages.nameError =

@@ -1,9 +1,32 @@
 "use client";
 import { socket } from "@/socket";
-import { useState } from "react";
+import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 
-export default function MessageInput({ setMessages, currentChat, myId }) {
+type UserType = {
+  _id: string;
+  userName: string;
+};
+
+type MessageType = {
+  _id?: string;
+  text: string;
+  time: string;
+  senderId: string;
+  roomId: string;
+};
+
+type MessageInputProps = {
+  setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
+  currentChat: UserType;
+  myId: string | undefined;
+};
+
+export default function MessageInput({
+  setMessages,
+  currentChat,
+  myId,
+}: MessageInputProps) {
   const [message, setMessage] = useState("");
 
   const sendMessage = () => {
@@ -17,11 +40,19 @@ export default function MessageInput({ setMessages, currentChat, myId }) {
       senderId: myId,
       roomId,
     };
+
     socket.emit("send_message", newMessage);
 
     setMessages((prev) => [...prev, newMessage]);
 
     setMessage("");
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
   };
 
   return (
@@ -30,6 +61,7 @@ export default function MessageInput({ setMessages, currentChat, myId }) {
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="message"
           autoFocus
           className="hide-scrollbar h-13 w-full resize-none rounded-xl bg-slate-800 p-8 px-4 py-2 py-3 text-lg placeholder:text-slate-500 focus:outline-none"

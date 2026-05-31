@@ -6,12 +6,23 @@ import MessageInput from "../components/UI/MessageInput";
 import UserMessage from "../components/UI/UserMessage";
 import { useGetUsers } from "../components/hooks/useGetUsers";
 
+type MessageType = {
+  text: string;
+  time: string;
+  senderId: string;
+};
+
+type UserType = {
+  _id: string;
+  userName: string;
+};
+
 export default function ChatHome() {
   const { currentChat } = useChat();
-  const [messages, setMessages] = useState([]);
-  const [me, setMe] = useState(null);
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [me, setMe] = useState<UserType | null>(null);
 
-  const { getUser} = useGetUsers();
+  const { getUser } = useGetUsers();
 
   useEffect(() => {
     const loadMe = async () => {
@@ -31,7 +42,7 @@ export default function ChatHome() {
   }, [currentChat, me]);
 
   useEffect(() => {
-    socket.on("receive_message", (data) => {
+    socket.on("receive_message", (data: MessageType) => {
       setMessages((prev) => [...prev, data]);
     });
 
@@ -39,6 +50,7 @@ export default function ChatHome() {
       socket.off("receive_message");
     };
   }, []);
+
   return (
     <div className="flex h-full flex-col">
       {currentChat ? (

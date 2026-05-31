@@ -1,7 +1,16 @@
 import { IoCheckmarkDone } from "react-icons/io5";
 import { IoCheckmark } from "react-icons/io5";
 
-export default function UserList({ users, onClick }) {
+type UserType = {
+  _id: string;
+  userName: string;
+};
+type UserListProps = {
+  users: UserType;
+  onClick: () => void;
+};
+
+export default function UserList({ users, onClick }: UserListProps) {
   return (
     <>
       <div

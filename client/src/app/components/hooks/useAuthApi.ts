@@ -1,7 +1,22 @@
 const API_URL = "http://localhost:5000";
 
+type AuthorPayload = {
+  userName: string;
+  userEmail: string;
+  userPassword: string;
+};
+
+type AuthResponse = {
+  message: string;
+  user: {
+    _id?: string;
+    id?: string;
+    userName: string;
+  };
+};
+
 const useAuthApi = () => {
-  const login = async (data) => {
+  const login = async (data: AuthorPayload): Promise<AuthResponse> => {
     try {
       const res = await fetch(`${API_URL}/api/author/login`, {
         method: "POST",
@@ -11,7 +26,7 @@ const useAuthApi = () => {
         credentials: "include",
         body: JSON.stringify(data),
       });
-      const resData = await res.json();
+      const resData: AuthResponse = await res.json();
       if (!res.ok) {
         throw new Error(resData.message);
       }
@@ -22,7 +37,7 @@ const useAuthApi = () => {
     }
   };
 
-  const register = async (data) => {
+  const register = async (data: AuthorPayload): Promise<AuthResponse> => {
     try {
       const res = await fetch(`${API_URL}/api/author/register`, {
         method: "POST",
@@ -32,7 +47,7 @@ const useAuthApi = () => {
         credentials: "include",
         body: JSON.stringify(data),
       });
-      const resData = await res.json();
+      const resData: AuthResponse = await res.json();
       if (!res.ok) {
         throw new Error(resData.message);
       }

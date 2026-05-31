@@ -5,6 +5,7 @@ import AuthorForm from "../components/UI/AuthorForm";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useAuthApi from "../components/hooks/useAuthApi";
+import React from "react";
 
 export default function Login() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function Login() {
 
   const { login } = useAuthApi();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!validateForm()) return;
 
@@ -36,7 +37,9 @@ export default function Login() {
         router.push("/chat");
       }
     } catch (err) {
-      console.error(err.message);
+      if (err instanceof Error) {
+        console.error(err.message);
+      }
     }
   };
   return (

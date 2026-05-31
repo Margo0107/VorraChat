@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+type UserType = {
+  _id: string;
+  userName: string;
+};
+
+type UserInfoFrofileProps = {
+  avatarColor: string;
+  setAvatarColor: React.Dispatch<React.SetStateAction<string>>;
+  currentChat: UserType | null;
+};
 
 export default function UserInfo({
-  onClose,
   avatarColor,
   setAvatarColor,
   currentChat,
-}) {
+}: UserInfoFrofileProps) {
   return (
     <section className="absolute top-17 left-3 z-50 rounded-lg bg-gray-900/70 shadow-xl backdrop-blur-sm">
       <div
@@ -23,7 +31,7 @@ export default function UserInfo({
           value={avatarColor}
           onChange={(e) => setAvatarColor(e.target.value)}
         />
-        <p className="font-semibold"> {currentChat?.userName}</p>
+        <p className="font-semibold">{currentChat?.userName}</p>
       </div>
       <div className="p-4 py-2">
         <button>logout</button>

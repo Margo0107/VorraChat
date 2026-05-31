@@ -5,8 +5,18 @@ import { ChatProvider } from "../hooks/useChat";
 import UserHeader from "./UserHeader";
 import UserSidebar from "./UserSidebar";
 
-export default function ChatShell({ children }) {
-  const [currentChat, setCurrentChat] = useState(null);
+type ChatShellProps = {
+  children: React.ReactNode;
+};
+
+type ChatType = {
+  _id: string,
+  userName: string
+}
+
+export default function ChatShell({ children }: ChatShellProps) {
+  const [currentChat, setCurrentChat] = useState<ChatType | null >(null);
+
 
   return (
     <ChatProvider value={{ currentChat, setCurrentChat }}>
