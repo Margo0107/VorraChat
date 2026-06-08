@@ -7,7 +7,7 @@ type UserHeaderProps = {
   currentChat: UserType;
 };
 
-export default function UserHeader({ currentChat }: UserHeaderProps) {
+export default function UserHeader({ currentChat, isOnline }: UserHeaderProps & { isOnline: boolean }) {
   return (
     <header className="border-b border-slate-500 bg-gray-800 p-6 py-2">
       <div className="flex items-center gap-3">
@@ -18,7 +18,7 @@ export default function UserHeader({ currentChat }: UserHeaderProps) {
         <div className="flex flex-col">
           <p className="text-lg font-semibold">{currentChat.userName}</p>
           <div>
-            <p className="text-sky-400">в сети</p>
+            <p className="text-sky-400">{isOnline ? "online" : "offline"}</p>
           </div>
         </div>
       </div>

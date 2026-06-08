@@ -1,6 +1,5 @@
-import { channel } from "node:diagnostics_channel";
 import Chat from "../models/Chat.js";
-import User from "../models/User.js";
+
 import { Request, Response } from "express";
 
 interface AuthBody extends Request {
@@ -38,8 +37,6 @@ export const createChat = async (req: AuthBody, res: Response) => {
   }
 };
 
-
-
 export const getMyChats = async (req: AuthBody, res: Response) => {
   try {
     const myId = req.userId;
@@ -47,7 +44,7 @@ export const getMyChats = async (req: AuthBody, res: Response) => {
       members: myId,
     })
       .populate("members", "userName")
-      .sort({ updateAd: -1 });
+      .sort({ updatedAt: -1 });
 
     res.status(200).json(chats);
   } catch (error) {

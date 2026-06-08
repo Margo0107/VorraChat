@@ -11,8 +11,9 @@ type UserType = {
 type MessageType = {
   _id?: string;
   text: string;
-  time: string;
-  senderId: string;
+  createdAt?: string;
+  sender: string;
+  receiver: string;
   roomId: string;
 };
 
@@ -30,14 +31,15 @@ export default function MessageInput({
   const [message, setMessage] = useState("");
 
   const sendMessage = () => {
-    if (message.trim() === "") return;
+    if (message.trim() === "" || !myId) return;
 
     const roomId = [myId, currentChat._id].sort().join("-");
 
     const newMessage = {
       text: message,
-      time: new Date().toLocaleTimeString(),
-      senderId: myId,
+      createdAt: new Date().toISOString(),
+      sender: myId,
+      receiver: currentChat._id,
       roomId,
     };
 

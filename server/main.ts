@@ -5,6 +5,9 @@ import cookieParser from "cookie-parser";
 import authorRoutes from "./routes/authorRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import chatRoutes from "./routes/ChatRoutes.js";
+import messageRoutes from "./routes/MessageRoutes.js";
+
+import UserMessage from "./models/UserMessage.js";
 
 import http from "http";
 
@@ -33,20 +36,54 @@ app.use(cookieParser());
 app.use("/api/author", authorRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
+app.use("/api/messages", messageRoutes);
+
+const onlineUsers = new Map<string, string>();
 
 io.on("connection", (socket) => {
   console.log("user connected");
+
+  socket.on("user_online", (userId: string) => {
+    onlineUsers.set(userId, socket.id);
+
+    io.emit("online_users", Array.from(onlineUsers.keys()));
+  });
 
   socket.on("join_room", (roomId: string) => {
     socket.join(roomId);
     console.log("joined room: ", roomId);
   });
 
-  socket.on("send_message", (data: { roomId: string }) => {
-    socket.to(data.roomId).emit("receive_message", data);
+  type MessageData = {
+    text: string;
+    sender: string;
+    receiver: string;
+    roomId: string;
+  };
+
+  socket.on("send_message", async (data: MessageData) => {
+    try {
+      const newMessage = await UserMessage.create({
+        text: data.text,
+        sender: data.sender,
+        receiver: data.receiver,
+        roomId: data.roomId,
+      });
+
+      socket.to(data.roomId).emit("receive_message", newMessage);
+    } catch (err) {
+      console.error("Error saving message: ", err);
+    }
   });
 
   socket.on("disconnect", () => {
+    for (const [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        onlineUsers.delete(userId);
+        break;
+      }
+    }
+    io.emit("online_users", Array.from(onlineUsers.keys()));
     console.log("user disconnected");
   });
 });

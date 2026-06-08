@@ -22,11 +22,13 @@ type ChatType = {
 type UserSidebarProps = {
   currentChat: UserType | null;
   setCurrentChat: React.Dispatch<React.SetStateAction<UserType | null>>;
+  isOnline: boolean;
 };
 
 export default function UserSidebar({
   currentChat,
   setCurrentChat,
+  isOnline
 }: UserSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [avatarColor, setAvatarColor] = useState("#6bd4a3");
@@ -143,6 +145,7 @@ export default function UserSidebar({
                 <UserList
                   key={chat._id}
                   users={user}
+                  isOnline={isOnline}
                   onClick={() => setCurrentChat(user)}
                 />
               );

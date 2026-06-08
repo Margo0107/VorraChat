@@ -5,11 +5,15 @@ import { useChat } from "../components/hooks/useChat";
 import MessageInput from "../components/UI/MessageInput";
 import UserMessage from "../components/UI/UserMessage";
 import { useGetUsers } from "../components/hooks/useGetUsers";
+import { useMessage } from "../components/hooks/useMessage";
 
 type MessageType = {
+  _id?: string;
   text: string;
-  time: string;
-  senderId: string;
+  createdAt?: string;
+  sender: string;
+  receiver: string;
+  roomId: string;
 };
 
 type UserType = {
@@ -23,6 +27,7 @@ export default function ChatHome() {
   const [me, setMe] = useState<UserType | null>(null);
 
   const { getUser } = useGetUsers();
+  const { getMessages } = useMessage();
 
   useEffect(() => {
     const loadMe = async () => {
@@ -38,7 +43,11 @@ export default function ChatHome() {
     const roomId = [me._id, currentChat._id].sort().join("-");
 
     socket.emit("join_room", roomId);
-    console.log("join room: ", roomId);
+    const loadMessages = async () => {
+      const data = await getMessages(roomId);
+      setMessages(data || []);
+    };
+    loadMessages();
   }, [currentChat, me]);
 
   useEffect(() => {
@@ -62,8 +71,12 @@ export default function ChatHome() {
                 <UserMessage
                   key={ind}
                   text={mess.text}
-                  time={mess.time}
-                  senderId={mess.senderId}
+                  time={
+                    mess.createdAt
+                      ? new Date(mess.createdAt).toLocaleTimeString()
+                      : ""
+                  }
+                  sender={mess.sender}
                   myId={me?._id}
                 />
               ))}
