@@ -44,6 +44,7 @@ export const getMyChats = async (req: AuthBody, res: Response) => {
       members: myId,
     })
       .populate("members", "userName")
+      .populate("lastMessage", "text createdAt sender")
       .sort({ updatedAt: -1 });
 
     res.status(200).json(chats);

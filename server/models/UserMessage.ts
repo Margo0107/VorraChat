@@ -6,6 +6,7 @@ interface UserMessage {
   receiver: Types.ObjectId;
   createdAt: Date;
   roomId: string;
+  status: "delivered" | "read";
 }
 
 const userMessageSchema = new Schema<UserMessage>({
@@ -30,6 +31,11 @@ const userMessageSchema = new Schema<UserMessage>({
   roomId: {
     type: String,
     required: true,
+  },
+  status: {
+    type: String,
+    enum: ["delivered", "read"],
+    default: "delivered",
   },
 });
 export default model<UserMessage>("UserMessage", userMessageSchema);

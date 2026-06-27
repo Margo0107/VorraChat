@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 
 interface Chat {
   members: string[];
+  lastMessage?: string;
 }
 
 const ChatSсhema = new Schema<Chat>(
@@ -13,6 +14,10 @@ const ChatSсhema = new Schema<Chat>(
         required: true,
       },
     ],
+    lastMessage: {
+      type: Schema.Types.ObjectId,
+      ref: "UserMessage",
+    },
   },
   { timestamps: true },
 );
