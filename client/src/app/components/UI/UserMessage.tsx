@@ -7,6 +7,7 @@ type UserMessageProps = {
   time: string;
   sender: string;
   myId: string | undefined;
+  status?: "delivered" | "read";
 };
 
 export default function UserMessage({
@@ -14,6 +15,7 @@ export default function UserMessage({
   time,
   sender,
   myId,
+  status,
 }: UserMessageProps) {
   return (
     <div className="flex flex-col gap-5">
@@ -37,7 +39,8 @@ export default function UserMessage({
             >
               {time}
             </span>
-            {sender === myId && <IoCheckmark />}
+            {sender === myId &&
+              (status === "read" ? <IoCheckmarkDone size={20}/> : <IoCheckmark />)}
           </div>
         </div>
       </div>

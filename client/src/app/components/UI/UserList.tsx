@@ -12,6 +12,7 @@ type UserListProps = {
 };
 
 export default function UserList({ users, onClick, isOnline }: UserListProps) {
+  const preview = text.length > 12 ? `${text.slice(0, 12)}...` : text;
   return (
     <>
       <div
@@ -24,7 +25,7 @@ export default function UserList({ users, onClick, isOnline }: UserListProps) {
               {users?.userName?.[0].toUpperCase()}
             </div>
             {isOnline ? (
-              <div className="h-3 w-3 rounded-full bg-emerald-300 absolute bottom-1 right-0"></div>
+              <div className="absolute right-0 bottom-1 h-3 w-3 rounded-full border-2 border-gray-800 bg-emerald-300"></div>
             ) : null}
           </div>
           <div className="flex flex-1 flex-col justify-center">
@@ -39,6 +40,7 @@ export default function UserList({ users, onClick, isOnline }: UserListProps) {
             <div className="flex items-center justify-between">
               {" "}
               <p>hi, how are you?</p>
+              <p>{preview}</p>
             </div>
           </div>
         </div>

@@ -15,6 +15,7 @@ type MessageType = {
   sender: string;
   receiver: string;
   roomId: string;
+  status?: "delivered" | "read";
 };
 
 type MessageInputProps = {
@@ -41,6 +42,7 @@ export default function MessageInput({
       sender: myId,
       receiver: currentChat._id,
       roomId,
+      status: "delivered" as const,
     };
 
     socket.emit("send_message", newMessage);

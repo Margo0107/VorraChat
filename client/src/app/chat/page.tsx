@@ -14,6 +14,7 @@ type MessageType = {
   sender: string;
   receiver: string;
   roomId: string;
+  status?: "delivered" | "read";
 };
 
 type UserType = {
@@ -28,6 +29,23 @@ export default function ChatHome() {
 
   const { getUser } = useGetUsers();
   const { getMessages } = useMessage();
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && currentChat && me?._id) {
+        const roomId = [me._id, currentChat._id].sort().join("-");
+        socket.emit("message_read", {
+          roomId,
+          readerId: me._id,
+        });
+      }
+    };
+    handleVisibilityChange();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [currentChat, me?._id]);
 
   useEffect(() => {
     const loadMe = async () => {
@@ -46,19 +64,59 @@ export default function ChatHome() {
     const loadMessages = async () => {
       const data = await getMessages(roomId);
       setMessages(data || []);
+
+      socket.emit("message_read", {
+        roomId,
+        readerId: me._id,
+      });
     };
     loadMessages();
   }, [currentChat, me]);
 
   useEffect(() => {
-    socket.on("receive_message", (data: MessageType) => {
-      setMessages((prev) => [...prev, data]);
-    });
+    const handleMessageRead = (data: { roomId: string; readerId: string }) => {
+      setMessages((prev) =>
+        prev.map((message) => {
+          if (
+            message.roomId === data.roomId &&
+            message.receiver === data.readerId
+          ) {
+            return { ...message, status: "read" };
+          }
+          return message;
+        }),
+      );
+    };
+
+    socket.on("message_read", handleMessageRead);
 
     return () => {
-      socket.off("receive_message");
+      socket.off("message_read", handleMessageRead);
     };
   }, []);
+
+  useEffect(() => {
+    const handleReceiveMessage = (data: MessageType) => {
+      setMessages((prev) => [...prev, data]);
+      if (
+        me?._id &&
+        currentChat?._id === data.sender &&
+        data.receiver === me._id &&
+        document.visibilityState === "visible"
+      ) {
+        socket.emit("message_read", {
+          roomId: data.roomId,
+          readerId: me._id,
+        });
+      }
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
+
+    return () => {
+      socket.off("receive_message", handleReceiveMessage);
+    };
+  }, [currentChat?._id, me?._id]);
 
   return (
     <div className="flex h-full flex-col">
@@ -73,11 +131,15 @@ export default function ChatHome() {
                   text={mess.text}
                   time={
                     mess.createdAt
-                      ? new Date(mess.createdAt).toLocaleTimeString()
+                      ? new Date(mess.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                       : ""
                   }
                   sender={mess.sender}
                   myId={me?._id}
+                  status={mess.status}
                 />
               ))}
             </div>
