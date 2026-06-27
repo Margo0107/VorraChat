@@ -6,28 +6,46 @@ import UserHeader from "./UserHeader";
 import UserSidebar from "./UserSidebar";
 import { socket } from "@/socket";
 import { useGetUsers } from "../hooks/useGetUsers";
+import useChatsApi from "../hooks/useChatsApi";
+import { CurrentChatType } from "../hooks/useChat";
 
 type ChatShellProps = {
   children: React.ReactNode;
 };
 type UserType = {
   _id: string;
-  username: string;
-  email: string;
+  userName: string;
+  email?: string;
+};
+
+type MessageType = {
+  _id?: string;
+  text: string;
+  createdAt?: string;
+  sender: string;
+  receiver: string;
+  roomId: string;
+  status?: "delivered" | "read";
 };
 
 type ChatType = {
   _id: string;
-  userName: string;
+  members: UserType[];
+  createdAt: string;
+  updatedAt: string;
+  lastMessage?: MessageType;
 };
 
 export default function ChatShell({ children }: ChatShellProps) {
-  const [currentChat, setCurrentChat] = useState<ChatType | null>(null);
+  const [currentChat, setCurrentChat] = useState<CurrentChatType | null>(null);
 
   const [me, setMe] = useState<UserType | null>(null);
+  const [chats, setChats] = useState<ChatType[]>([]);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   const { getUser } = useGetUsers();
+  const { getChats } = useChatsApi();
+
   useEffect(() => {
     const loadMe = async () => {
       const data = await getUser();
@@ -50,8 +68,61 @@ export default function ChatShell({ children }: ChatShellProps) {
     };
   }, []);
 
+  useEffect(() => {
+    const loadChats = async () => {
+      const data = await getChats();
+
+      if (!data) {
+        return;
+      }
+
+      setChats(data);
+    };
+
+    loadChats();
+  }, []);
+
+  useEffect(() => {
+    chats.forEach((chat) => {
+      socket.emit("join_room", chat._id);
+    });
+  }, [chats]);
+
+  useEffect(() => {
+    const handleChatUpdated = ({
+      chatId,
+      lastMessage,
+    }: {
+      chatId: string;
+      lastMessage: MessageType;
+    }) => {
+      setChats((prevChats) =>
+        prevChats
+          .map((chat) =>
+            chat._id === chatId
+              ? {
+                ...chat,
+                lastMessage,
+                updatedAt: lastMessage.createdAt || chat.updatedAt,
+              }
+              : chat,
+          )
+          .sort(
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+          ),
+      );
+    };
+
+    socket.on("chat_updated", handleChatUpdated);
+
+    return () => {
+      socket.off("chat_updated", handleChatUpdated);
+    };
+  }, []);
+
   const isCurrentChatOnline = currentChat
-    ? onlineUsers.includes(currentChat._id)
+    ? onlineUsers.includes(currentChat.user._id)
     : false;
 
   return (
@@ -60,7 +131,10 @@ export default function ChatShell({ children }: ChatShellProps) {
         <UserSidebar
           currentChat={currentChat}
           setCurrentChat={setCurrentChat}
-          isOnline={isCurrentChatOnline}
+          chats={chats}
+          setChats={setChats}
+          me={me}
+          onlineUsers={onlineUsers}
         />
         <div className="flex min-h-0 flex-1 flex-col">
           {currentChat && (
@@ -70,7 +144,7 @@ export default function ChatShell({ children }: ChatShellProps) {
             />
           )}
 
-          <main className="flex min-h-0 flex-1 justify-center pt-5 pb-5">
+          <main className="flex min-h-0 flex-1 justify-center pb-5">
             <div className="min-h-0 w-2/4">{children}</div>
           </main>
         </div>

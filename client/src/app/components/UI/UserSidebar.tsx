@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useGetUsers } from "../hooks/useGetUsers";
 import useChatsApi from "../hooks/useChatsApi";
 import UserList from "./UserList";
+import { CurrentChatType } from "../hooks/useChat";
 
 type UserType = {
   _id: string;
@@ -17,33 +18,47 @@ type ChatType = {
   members: UserType[];
   createdAt: string;
   updatedAt: string;
+  lastMessage?: {
+    _id?: string;
+    text: string;
+    createdAt?: string;
+    sender: string;
+    receiver: string;
+    roomId: string;
+    status?: "delivered" | "read";
+  };
 };
 
 type UserSidebarProps = {
-  currentChat: UserType | null;
-  setCurrentChat: React.Dispatch<React.SetStateAction<UserType | null>>;
-  isOnline: boolean;
+  currentChat: CurrentChatType | null;
+  setCurrentChat: React.Dispatch<React.SetStateAction<CurrentChatType | null>>;
+  chats: ChatType[];
+  setChats: React.Dispatch<React.SetStateAction<ChatType[]>>;
+  me: UserType | null;
+  onlineUsers: string[];
 };
 
 export default function UserSidebar({
   currentChat,
   setCurrentChat,
-  isOnline
+  chats,
+  setChats,
+  me,
+  onlineUsers,
 }: UserSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [avatarColor, setAvatarColor] = useState("#6bd4a3");
 
   const [searchUsers, setSearchUsers] = useState<UserType[]>([]);
   const [search, setSearch] = useState("");
-  const [chats, setChats] = useState<ChatType[]>([]);
-  const [me, setMe] = useState<UserType | null>(null);
+  const [userName, setUserName] = useState<UserType | null>(null);
 
   const showProfile = () => {
     setIsOpen(!isOpen);
   };
-
-  const { getSearchUser, getUser } = useGetUsers();
-  const { createChat, getChats } = useChatsApi();
+  const { getUser } = useGetUsers()
+  const { getSearchUser } = useGetUsers();
+  const { createChat } = useChatsApi();
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -57,39 +72,13 @@ export default function UserSidebar({
     loadUsers();
   }, [search]);
 
-  useEffect(() => {
-    const loadChats = async () => {
-      const chats = await getChats();
-
-      if (!chats) {
-        return;
-      }
-      setChats(chats);
-
-      console.log(chats);
-    };
-    loadChats();
-  }, []);
-  useEffect(() => {
-    const loadMe = async () => {
-      const data = await getUser();
-
-      if (!data) {
-        return;
-      }
-      setMe(data);
-    };
-    loadMe();
-  }, []);
-
   const openChat = async (user: UserType) => {
     const chat = await createChat(user);
 
     if (!chat) {
       return;
     }
-    console.log("created chat:", chat);
-    setCurrentChat(user);
+    setCurrentChat({ chatId: chat._id, user });
     setSearch("");
     setSearchUsers([]);
 
@@ -103,6 +92,14 @@ export default function UserSidebar({
       return [...prevChats, chat];
     });
   };
+
+  useEffect(() => {
+    const loadMe = async () => {
+      const data = await getUser()
+      setUserName(data)
+    }
+    loadMe()
+  }, [])
 
   return (
     <aside className="flex w-sm flex-col border-r border-gray-500 bg-gray-800 p-3 py-4">
@@ -125,39 +122,43 @@ export default function UserSidebar({
 
         {search.trim()
           ? searchUsers.map((user) => (
-              <UserList
-                key={user._id}
-                users={user}
-                onClick={() => openChat(user)}
-              />
-            ))
+            <UserList
+              key={user._id}
+              users={user}
+              isOnline={onlineUsers.includes(user._id)}
+              onClick={() => openChat(user)}
+            />
+          ))
           : chats.map((chat) => {
-              if (!me) {
-                return null;
-              }
+            if (!me) {
+              return null;
+            }
 
-              const user = chat.members.find((member) => member._id !== me._id);
+            const user = chat.members.find((member) => member._id !== me._id);
 
-              if (!user) {
-                return null;
-              }
-              return (
-                <UserList
-                  key={chat._id}
-                  users={user}
-                  isOnline={isOnline}
-                  onClick={() => setCurrentChat(user)}
-                />
-              );
-            })}
+            if (!user) {
+              return null;
+            }
+            return (
+              <UserList
+                key={chat._id}
+                users={user}
+                lastMessage={chat.lastMessage}
+                isOnline={onlineUsers.includes(user._id)}
+                isActive={currentChat?.chatId === chat._id}
+                onClick={() => setCurrentChat({ chatId: chat._id, user })}
+              />
+            );
+          })}
 
         {isOpen && (
           <UserInfo
+            userName={userName}
             avatarColor={avatarColor}
             setAvatarColor={setAvatarColor}
-            currentChat={currentChat}
           />
         )}
+
       </section>
     </aside>
   );

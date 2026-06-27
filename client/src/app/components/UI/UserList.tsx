@@ -5,19 +5,52 @@ type UserType = {
   _id: string;
   userName: string;
 };
+
+type MessageType = {
+  _id?: string;
+  text: string;
+  createdAt?: string;
+  sender: string;
+  receiver: string;
+  roomId: string;
+  status?: "delivered" | "read";
+};
+
 type UserListProps = {
   users: UserType;
   onClick: () => void;
-  isOnline: boolean;
+  isOnline?: boolean;
+  isActive?: boolean;
+  lastMessage?: MessageType;
 };
 
-export default function UserList({ users, onClick, isOnline }: UserListProps) {
-  const preview = text.length > 12 ? `${text.slice(0, 12)}...` : text;
+export default function UserList({
+  users,
+  onClick,
+  isOnline,
+  isActive,
+  lastMessage,
+}: UserListProps) {
+
+  const preview = lastMessage?.text
+    ? lastMessage.text.length > 30
+      ? `${lastMessage.text.slice(0, 30)}...`
+      : lastMessage.text
+    : "No messages yet";
+
+  const time = lastMessage?.createdAt
+    ? new Date(lastMessage.createdAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    : "";
+
   return (
     <>
       <div
         onClick={onClick}
-        className="flex cursor-pointer flex-col justify-between rounded-lg border-b border-slate-700 bg-gray-800 px-4 py-3 hover:bg-gray-700"
+        className={`flex cursor-pointer flex-col justify-between rounded-lg border-b border-slate-700 px-4 py-3 hover:bg-gray-700 ${isActive ? "bg-gray-700" : "bg-gray-800"
+          }`}
       >
         <div className="flex gap-3">
           <div className="relative">
@@ -33,14 +66,20 @@ export default function UserList({ users, onClick, isOnline }: UserListProps) {
               <p className="text-lg font-semibold">{users?.userName}</p>
 
               <div className="flex gap-1">
-                <IoCheckmark />
-                <span className="text-sm text-sky-200">15:00</span>
+
+                {lastMessage?.status === "read" ? (
+                  <IoCheckmarkDone className="text-sky-400 w-5 h-5" />
+                ) : (
+                  <IoCheckmark className="text-sky-400 w-5 h-5" />
+                )
+                }
+
+                <span className="text-sm text-gray-400">{time}</span>
               </div>
             </div>
             <div className="flex items-center justify-between">
               {" "}
-              <p>hi, how are you?</p>
-              <p>{preview}</p>
+              <p className="truncate text-slate-300">{preview}</p>
             </div>
           </div>
         </div>

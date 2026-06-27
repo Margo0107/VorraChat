@@ -8,6 +8,11 @@ type UserType = {
   userName: string;
 };
 
+type CurrentChatType = {
+  chatId: string;
+  user: UserType;
+};
+
 type MessageType = {
   _id?: string;
   text: string;
@@ -20,7 +25,7 @@ type MessageType = {
 
 type MessageInputProps = {
   setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
-  currentChat: UserType;
+  currentChat: CurrentChatType;
   myId: string | undefined;
 };
 
@@ -34,14 +39,12 @@ export default function MessageInput({
   const sendMessage = () => {
     if (message.trim() === "" || !myId) return;
 
-    const roomId = [myId, currentChat._id].sort().join("-");
-
     const newMessage = {
       text: message,
       createdAt: new Date().toISOString(),
       sender: myId,
-      receiver: currentChat._id,
-      roomId,
+      receiver: currentChat.user._id,
+      roomId: currentChat.chatId,
       status: "delivered" as const,
     };
 

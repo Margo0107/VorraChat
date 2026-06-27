@@ -8,13 +8,14 @@ type UserType = {
 type UserInfoFrofileProps = {
   avatarColor: string;
   setAvatarColor: React.Dispatch<React.SetStateAction<string>>;
-  currentChat: UserType | null;
+  userName: UserType | null;
 };
 
 export default function UserInfo({
+  userName,
   avatarColor,
   setAvatarColor,
-  currentChat,
+
 }: UserInfoFrofileProps) {
   return (
     <section className="absolute top-17 left-3 z-50 rounded-lg bg-gray-900/70 shadow-xl backdrop-blur-sm">
@@ -22,16 +23,17 @@ export default function UserInfo({
         onClick={(e) => e.stopPropagation()}
         className="flex items-center gap-3 border-b border-gray-500 p-4 py-2"
       >
-        <div
+        {/* <div
           className="h-7 w-7 rounded-full bg-pink-500"
           style={{ backgroundColor: avatarColor }}
-        ></div>
+        ></div> */}
         <input
+        className="avatar-color h-7 w-7 rounded-full"
           type="color"
           value={avatarColor}
           onChange={(e) => setAvatarColor(e.target.value)}
         />
-        <p className="font-semibold">{currentChat?.userName}</p>
+        <p className="font-semibold">{userName?.userName}</p>
       </div>
       <div className="p-4 py-2">
         <button>logout</button>

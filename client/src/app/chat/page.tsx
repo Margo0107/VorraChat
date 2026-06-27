@@ -33,9 +33,8 @@ export default function ChatHome() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && currentChat && me?._id) {
-        const roomId = [me._id, currentChat._id].sort().join("-");
         socket.emit("message_read", {
-          roomId,
+          roomId: currentChat.chatId,
           readerId: me._id,
         });
       }
@@ -58,15 +57,13 @@ export default function ChatHome() {
   useEffect(() => {
     if (!currentChat || !me?._id) return;
 
-    const roomId = [me._id, currentChat._id].sort().join("-");
-
-    socket.emit("join_room", roomId);
+    socket.emit("join_room", currentChat.chatId);
     const loadMessages = async () => {
-      const data = await getMessages(roomId);
+      const data = await getMessages(currentChat.chatId);
       setMessages(data || []);
 
       socket.emit("message_read", {
-        roomId,
+        roomId: currentChat.chatId,
         readerId: me._id,
       });
     };
@@ -100,7 +97,7 @@ export default function ChatHome() {
       setMessages((prev) => [...prev, data]);
       if (
         me?._id &&
-        currentChat?._id === data.sender &&
+        currentChat?.user._id === data.sender &&
         data.receiver === me._id &&
         document.visibilityState === "visible"
       ) {
@@ -116,7 +113,7 @@ export default function ChatHome() {
     return () => {
       socket.off("receive_message", handleReceiveMessage);
     };
-  }, [currentChat?._id, me?._id]);
+  }, [currentChat?.chatId, currentChat?.user._id, me?._id]);
 
   return (
     <div className="flex h-full flex-col">
@@ -132,9 +129,9 @@ export default function ChatHome() {
                   time={
                     mess.createdAt
                       ? new Date(mess.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
                       : ""
                   }
                   sender={mess.sender}

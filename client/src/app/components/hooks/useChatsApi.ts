@@ -9,6 +9,15 @@ type ChatType = {
   members: UserType[];
   createdAt: string;
   updatedAt: string;
+  lastMessage?: {
+    _id?: string;
+    text: string;
+    createdAt?: string;
+    sender: string;
+    receiver: string;
+    roomId: string;
+    status?: "delivered" | "read";
+  };
 };
 
 type ErrorResponse = {

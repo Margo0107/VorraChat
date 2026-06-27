@@ -7,9 +7,14 @@ type UserType = {
   userName: string;
 };
 
+export type CurrentChatType = {
+  chatId: string;
+  user: UserType;
+};
+
 type ChatContextType = {
-  currentChat: UserType | null;
-  setCurrentChat: React.Dispatch<React.SetStateAction<UserType | null>>;
+  currentChat: CurrentChatType | null;
+  setCurrentChat: React.Dispatch<React.SetStateAction<CurrentChatType | null>>;
 };
 
 type ChatProviderProps = {
