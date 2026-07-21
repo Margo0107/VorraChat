@@ -59,6 +59,18 @@ export default function UserSidebar({
   const { getUser } = useGetUsers()
   const { getSearchUser } = useGetUsers();
   const { createChat } = useChatsApi();
+  const chatGptUser: UserType = {
+    _id: "chatgpt",
+    userName: "ChatGPT",
+  };
+  const chatGptMessage = {
+    text: "Ask me anything",
+    createdAt: new Date().toISOString(),
+    sender: "chatgpt",
+    receiver: me?._id || "",
+    roomId: "chatgpt",
+    status: "read" as const,
+  };
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -129,27 +141,42 @@ export default function UserSidebar({
               onClick={() => openChat(user)}
             />
           ))
-          : chats.map((chat) => {
-            if (!me) {
-              return null;
-            }
+          : <>
+            <UserList
+              key="chatgpt"
+              users={chatGptUser}
+              avatarText="AI"
+              avatarClassName="bg-emerald-500 text-white"
+              isOnline={false}
+              isActive={currentChat?.chatId === "chatgpt"}
+              lastMessage={chatGptMessage}
+              onClick={() =>
+                setCurrentChat({ chatId: "chatgpt", user: chatGptUser })
+              }
+            />
 
-            const user = chat.members.find((member) => member._id !== me._id);
+            {chats.map((chat) => {
+              if (!me) {
+                return null;
+              }
 
-            if (!user) {
-              return null;
-            }
-            return (
-              <UserList
-                key={chat._id}
-                users={user}
-                lastMessage={chat.lastMessage}
-                isOnline={onlineUsers.includes(user._id)}
-                isActive={currentChat?.chatId === chat._id}
-                onClick={() => setCurrentChat({ chatId: chat._id, user })}
-              />
-            );
-          })}
+              const user = chat.members.find((member) => member._id !== me._id);
+
+              if (!user) {
+                return null;
+              }
+              return (
+                <UserList
+                  key={chat._id}
+                  users={user}
+                  lastMessage={chat.lastMessage}
+                  isOnline={onlineUsers.includes(user._id)}
+                  isActive={currentChat?.chatId === chat._id}
+                  onClick={() => setCurrentChat({ chatId: chat._id, user })}
+                />
+              );
+            })}
+          </>}
 
         {isOpen && (
           <UserInfo

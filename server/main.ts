@@ -7,6 +7,7 @@ import authorRoutes from "./routes/authorRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import chatRoutes from "./routes/ChatRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 import http from "http";
 import { Server } from "socket.io";
@@ -36,7 +37,7 @@ app.use("/api/author", authorRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/messages", messageRoutes);
-
+app.use("/api/ai", aiRoutes);
 const PORT = process.env.PORT;
 
 server.listen(PORT || 5000, () => {

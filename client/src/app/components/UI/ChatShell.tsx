@@ -121,6 +121,35 @@ export default function ChatShell({ children }: ChatShellProps) {
     };
   }, []);
 
+  useEffect(() => {
+    const handleMessageRead = (data: { roomId: string; readerId: string }) => {
+      setChats((prevChats) =>
+        prevChats.map((chat) => {
+          if (
+            chat._id === data.roomId &&
+            chat.lastMessage?.receiver === data.readerId
+          ) {
+            return {
+              ...chat,
+              lastMessage: {
+                ...chat.lastMessage,
+                status: "read",
+              },
+            };
+          }
+
+          return chat;
+        }),
+      );
+    };
+
+    socket.on("message_read", handleMessageRead);
+
+    return () => {
+      socket.off("message_read", handleMessageRead);
+    };
+  }, []);
+
   const isCurrentChatOnline = currentChat
     ? onlineUsers.includes(currentChat.user._id)
     : false;

@@ -35,7 +35,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="flex min-h-full flex-col">
         {children}
         <NextTopLoader
-          className="sky-600"
+          color="#0284c7"
           initialPosition={0.08}
           crawlSpeed={300}
           height={3}

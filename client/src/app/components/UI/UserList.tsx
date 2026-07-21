@@ -22,6 +22,8 @@ type UserListProps = {
   isOnline?: boolean;
   isActive?: boolean;
   lastMessage?: MessageType;
+  avatarText?: string;
+  avatarClassName?: string;
 };
 
 export default function UserList({
@@ -30,6 +32,8 @@ export default function UserList({
   isOnline,
   isActive,
   lastMessage,
+  avatarText,
+  avatarClassName = "bg-pink-500",
 }: UserListProps) {
 
   const preview = lastMessage?.text
@@ -54,8 +58,10 @@ export default function UserList({
       >
         <div className="flex gap-3">
           <div className="relative">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pink-500 font-bold">
-              {users?.userName?.[0].toUpperCase()}
+            <div
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-bold ${avatarClassName}`}
+            >
+              {avatarText || users?.userName?.[0].toUpperCase()}
             </div>
             {isOnline ? (
               <div className="absolute right-0 bottom-1 h-3 w-3 rounded-full border-2 border-gray-800 bg-emerald-300"></div>
